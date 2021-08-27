@@ -133,5 +133,5 @@ export interface FilterState {
   dataSource?: string;
   alertState?: string;
   groupBy?: string[];
-  showRecordingRules?: boolean;
+  ruleType?: string;
 }
