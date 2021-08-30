@@ -196,7 +196,10 @@ export const SilencesEditor: FC<Props> = ({ silence, alertManagerSourceName }) =
             error={formState.errors.comment?.message}
             invalid={!!formState.errors.comment}
           >
-            <TextArea {...register('comment', { required: { value: true, message: 'Required.' } })} />
+            <TextArea
+              {...register('comment', { required: { value: true, message: 'Required.' } })}
+              placeholder="Message"
+            />
           </Field>
           <Field
             className={cx(styles.field, styles.createdBy)}
