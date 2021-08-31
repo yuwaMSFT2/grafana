@@ -3,8 +3,6 @@ import { GrafanaTheme2, dateMath } from '@grafana/data';
 import { Icon, useStyles2, Link, Button } from '@grafana/ui';
 import { css } from '@emotion/css';
 import { AlertmanagerAlert, Silence } from 'app/plugins/datasource/alertmanager/types';
-import SilenceTableRow from './SilenceTableRow';
-import { getAlertTableStyles } from '../../styles/table';
 import { NoSilencesSplash } from './NoSilencesCTA';
 import { makeAMLink } from '../../utils/misc';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -16,8 +14,9 @@ import { ActionButton } from '../rules/ActionButton';
 import { ActionIcon } from '../rules/ActionIcon';
 import { useDispatch } from 'react-redux';
 import { expireSilenceAction } from '../../state/actions';
+import { SilenceDetails } from './SilenceDetails';
 
-interface SilenceTableItem extends Silence {
+export interface SilenceTableItem extends Silence {
   silencedAlerts: AlertmanagerAlert[];
 }
 
@@ -31,7 +30,6 @@ interface Props {
 
 const SilencesTable: FC<Props> = ({ silences, alertManagerAlerts, alertManagerSourceName }) => {
   const styles = useStyles2(getStyles);
-  const tableStyles = useStyles2(getAlertTableStyles);
   const [queryParams] = useQueryParams();
 
   const filteredSilences = useMemo(() => {
@@ -74,41 +72,12 @@ const SilencesTable: FC<Props> = ({ silences, alertManagerAlerts, alertManagerSo
               </Link>
             </div>
           )}
-          <DynamicTable items={items} cols={columns} />
-          <table className={tableStyles.table}>
-            <colgroup>
-              <col className={tableStyles.colExpand} />
-              <col className={styles.colState} />
-              <col className={styles.colMatchers} />
-              <col />
-              <col />
-              {contextSrv.isEditor && <col />}
-            </colgroup>
-            <thead>
-              <tr>
-                <th />
-                <th>State</th>
-                <th>Matching labels</th>
-                <th>Alerts</th>
-                <th>Schedule</th>
-                {contextSrv.isEditor && <th>Action</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSilences.map((silence, index) => {
-                const silencedAlerts = findSilencedAlerts(silence.id);
-                return (
-                  <SilenceTableRow
-                    key={silence.id}
-                    silence={silence}
-                    className={index % 2 === 0 ? tableStyles.evenRow : undefined}
-                    silencedAlerts={silencedAlerts}
-                    alertManagerSourceName={alertManagerSourceName}
-                  />
-                );
-              })}
-            </tbody>
-          </table>
+          <DynamicTable
+            items={items}
+            cols={columns}
+            isExpandable
+            renderExpandedContent={({ data }) => <SilenceDetails silence={data} />}
+          />
           <div className={styles.callout}>
             <Icon className={styles.calloutIcon} name="info-circle" />
             <span>Expired silences are automatically deleted after 5 days.</span>
@@ -129,12 +98,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
   addNewSilence: css`
     margin-bottom: ${theme.spacing(1)};
   `,
-  colState: css`
-    width: 110px;
-  `,
-  colMatchers: css`
-    width: 50%;
-  `,
   callout: css`
     background-color: ${theme.colors.background.secondary};
     border-top: 3px solid ${theme.colors.info.border};
@@ -152,10 +115,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
   calloutIcon: css`
     color: ${theme.colors.info.text};
   `,
+  editButton: css`
+    margin-left: ${theme.spacing(0.5)};
+  `,
 });
 
 function useColumns(alertManagerSourceName: string) {
   const dispatch = useDispatch();
+  const styles = useStyles2(getStyles);
   return useMemo((): SilenceTableColumnProps[] => {
     const handleExpireSilenceClick = (id: string) => {
       dispatch(expireSilenceAction(alertManagerSourceName, id));
@@ -168,6 +135,7 @@ function useColumns(alertManagerSourceName: string) {
         renderCell: function renderStateTag({ data: { status } }) {
           return <SilenceStateTag state={status.state} />;
         },
+        size: '88px',
       },
       {
         id: 'matchers',
@@ -175,11 +143,13 @@ function useColumns(alertManagerSourceName: string) {
         renderCell: function renderMatchers({ data: { matchers } }) {
           return <Matchers matchers={matchers || []} />;
         },
+        size: 9,
       },
       {
         id: 'alerts',
         label: 'Alerts',
         renderCell: ({ data: { silencedAlerts } }) => silencedAlerts.length,
+        size: 1,
       },
       {
         id: 'schedule',
@@ -197,6 +167,7 @@ function useColumns(alertManagerSourceName: string) {
             </>
           );
         },
+        size: 2,
       },
     ];
     if (showActions) {
@@ -217,6 +188,7 @@ function useColumns(alertManagerSourceName: string) {
               )}
               {silence.status.state !== 'expired' && (
                 <ActionIcon
+                  className={styles.editButton}
                   to={makeAMLink(`/alerting/silence/${silence.id}/edit`, alertManagerSourceName)}
                   icon="pen"
                   tooltip="edit"
@@ -225,10 +197,11 @@ function useColumns(alertManagerSourceName: string) {
             </>
           );
         },
+        size: 2,
       });
     }
     return columns;
-  }, [alertManagerSourceName, dispatch]);
+  }, [alertManagerSourceName, dispatch, styles]);
 }
 
 export default SilencesTable;
