@@ -65,6 +65,7 @@ export const AlertTypeStep: FC<Props> = ({ editingExistingRule }) => {
           id="name"
           {...register('name', { required: { value: true, message: 'Must enter an alert name' } })}
           autoFocus={true}
+          placeholder="Rule name"
         />
       </Field>
       <div className={styles.flexRow}>
