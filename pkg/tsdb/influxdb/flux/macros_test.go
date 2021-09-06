@@ -7,7 +7,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInterpolate(t *testing.T) {
@@ -32,8 +31,8 @@ func TestInterpolate(t *testing.T) {
 	}{
 		{
 			name:   "interpolate flux variables",
-			before: `v.timeRangeStart, something.timeRangeStop, XYZ.bucket, uuUUu.defaultBucket, aBcDefG.organization, window.windowPeriod, a91{}.bucket`,
-			after:  `1970-01-01T00:00:00Z, 1970-01-01T00:00:00Z, "grafana2", "grafana3", "grafana1", 1s, a91{}.bucket`,
+			before: `v.timeRangeStart, something.timeRangeStop, XYZ.bucket, uuUUu.defaultBucket, aBcDefG.organization, window.windowPeriod, a91{}.bucket, $__interval, $__interval_ms`,
+			after:  `1970-01-01T00:00:00Z, 1970-01-01T00:00:00Z, "grafana2", "grafana3", "grafana1", 1s, a91{}.bucket, 1s, 1000`,
 		},
 	}
 	for _, tt := range tests {
@@ -45,8 +44,7 @@ func TestInterpolate(t *testing.T) {
 				MaxDataPoints: 1,
 				Interval:      1000 * 1000 * 1000,
 			}
-			interpolatedQuery, err := interpolate(query)
-			require.NoError(t, err)
+			interpolatedQuery := interpolate(query)
 			diff := cmp.Diff(tt.after, interpolatedQuery)
 			assert.Equal(t, "", diff)
 		})
