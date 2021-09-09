@@ -1,4 +1,4 @@
-import React, { FormEvent, memo, useCallback } from 'react';
+import React, { FormEvent, memo, useCallback, useRef } from 'react';
 import { css } from '@emotion/css';
 import Calendar from 'react-calendar/dist/entry.nostyle';
 import { dateTime, DateTime, dateTimeParse, GrafanaTheme2, TimeZone } from '@grafana/data';
@@ -7,8 +7,9 @@ import { TimePickerTitle } from './TimePickerTitle';
 import { Button } from '../../Button';
 import { Icon } from '../../Icon/Icon';
 import { Portal } from '../../Portal/Portal';
-import { ClickOutsideWrapper } from '../../ClickOutsideWrapper/ClickOutsideWrapper';
 import { selectors } from '@grafana/e2e-selectors';
+import { useOverlay } from '@react-aria/overlays';
+import { FocusScope } from '@react-aria/focus';
 
 export const getStyles = stylesFactory((theme: GrafanaTheme2, isReversed = false) => {
   return {
@@ -199,9 +200,18 @@ interface Props {
 const stopPropagation = (event: React.MouseEvent<HTMLDivElement>) => event.stopPropagation();
 
 export const TimePickerCalendar = memo<Props>((props) => {
+  const ref = useRef(null);
   const theme = useTheme2();
   const styles = getStyles(theme, props.isReversed);
-  const { isOpen, isFullscreen } = props;
+  const { isOpen, isFullscreen, onClose } = props;
+  const { overlayProps } = useOverlay(
+    {
+      isOpen,
+      isDismissable: true,
+      onClose,
+    },
+    ref
+  );
 
   if (!isOpen) {
     return null;
@@ -209,15 +219,16 @@ export const TimePickerCalendar = memo<Props>((props) => {
 
   if (isFullscreen) {
     return (
-      <ClickOutsideWrapper onClick={props.onClose}>
+      <FocusScope autoFocus contain>
         <section
           className={styles.container}
           onClick={stopPropagation}
           aria-label={selectors.components.TimePicker.calendar}
+          {...overlayProps}
         >
           <Body {...props} />
         </section>
-      </ClickOutsideWrapper>
+      </FocusScope>
     );
   }
 
