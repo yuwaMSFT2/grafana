@@ -1,0 +1,61 @@
+apiVersion: 1
+datasources:
+  - name: grafanacloud-nathanrodman-logs
+    type: loki
+    access: proxy
+    url: https://logs-prod-us-central1.grafana.net
+    basicAuth: true
+    basicAuthUser: 9376
+    basicAuthPassword: eyJrIjoiYjQyODYwZGY2OTI1NDIzODQxMDQ1MzFkYjQxYTJmNmYxOGIwNDUxZCIsIm4iOiJsb2NhbGRldmtleSIsImlkIjo0NDIzNjJ9
+    jsonData:
+      maxLines: 1000
+  - name: grafanacloud-nathanrodman-prom
+    type: prometheus
+    access: proxy
+    url: https://prometheus-us-central1.grafana.net/api/prom
+    basicAuth: true
+    basicAuthUser: 20781
+    jsonData:
+      timeInterval: 1s
+    secureJsonData:
+      basicAuthPassword: eyJrIjoiYjQyODYwZGY2OTI1NDIzODQxMDQ1MzFkYjQxYTJmNmYxOGIwNDUxZCIsIm4iOiJsb2NhbGRldmtleSIsImlkIjo0NDIzNjJ9
+  - name: grafanacloud-nathanrodman-alertmanager
+    type: grafana-alertmanager-datasource
+    access: proxy
+    url: https://alertmanager-us-central1.grafana.net
+    basicAuth: true
+    basicAuthUser: 8373
+    jsonData:
+      timeInterval: 1s
+    secureJsonData:
+      basicAuthPassword: eyJrIjoiYjQyODYwZGY2OTI1NDIzODQxMDQ1MzFkYjQxYTJmNmYxOGIwNDUxZCIsIm4iOiJsb2NhbGRldmtleSIsImlkIjo0NDIzNjJ9
+  - name: alertmanager
+    type: alertmanager
+    access: proxy
+    url: https://alertmanager-us-central1.grafana.net
+    basicAuth: true
+    basicAuthUser: 8373
+    jsonData:
+      timeInterval: 1s
+    secureJsonData:
+      basicAuthPassword: eyJrIjoiYjQyODYwZGY2OTI1NDIzODQxMDQ1MzFkYjQxYTJmNmYxOGIwNDUxZCIsIm4iOiJsb2NhbGRldmtleSIsImlkIjo0NDIzNjJ9
+  - name: grafanacloud-nathanrodman-ruler
+    type: grafana-ruler-datasource
+    access: proxy
+    url: https://prometheus-us-central1.grafana.net/api/prom
+    basicAuth: true
+    basicAuthUser: 20781
+    jsonData:
+      timeInterval: 1s
+    secureJsonData:
+      basicAuthPassword: eyJrIjoiYjQyODYwZGY2OTI1NDIzODQxMDQ1MzFkYjQxYTJmNmYxOGIwNDUxZCIsIm4iOiJsb2NhbGRldmtleSIsImlkIjo0NDIzNjJ9
+  - name: cortex-chunks-dev
+    type: prometheus
+    access: proxy
+    url: http://prometheus-dev-01-dev-us-central-0.grafana.net/api/prom
+    basicAuth: true
+    basicAuthUser: 9960
+    jsonData:
+      timeInterval: 1s
+    secureJsonData:
+      basicAuthPassword: eyJrIjoiZWYwNzFiNTU1ZTc4MzNiOWZhZDEzYzI4OTBiYzNmZWIyMmIxNDRmNyIsIm4iOiJuYXRoYW5yb2RtYW4tZGV2IiwiaWQiOjF9
