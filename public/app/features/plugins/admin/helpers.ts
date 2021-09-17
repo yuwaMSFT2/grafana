@@ -131,7 +131,7 @@ export function mapToCatalogPlugin(local?: LocalPlugin, remote?: RemotePlugin): 
   const hasUpdate =
     local?.hasUpdate || Boolean(remote?.version && local?.info.version && gt(remote?.version, local?.info.version));
   const id = remote?.slug || local?.id || '';
-  const hasRemoteSignature = remote?.signatureType !== '' || remote?.versionSignatureType !== '';
+  const hasRemoteSignature = remote?.signatureType || remote?.versionSignatureType;
   let logos = {
     small: 'https://grafana.com/api/plugins/404notfound/versions/none/logos/small',
     large: 'https://grafana.com/api/plugins/404notfound/versions/none/logos/large',
